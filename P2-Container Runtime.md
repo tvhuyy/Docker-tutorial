@@ -20,7 +20,7 @@
 
 4. Kết Nối với Kernel của Hệ Điều Hành:
 
-    - Container runtime là giao tiếp trực tiếp với kernel của hệ điều hành để sử dụng các tính năng cô lập của kernel, chẳng hạn như namespaces và cgroups.
+    - Container runtime là giao tiếp trực tiếp với kernel của hệ điều hành để sử dụng các tính năng cô lập của kernel, chẳng hạn như namespaces và cgroups (Namespace cho phép ta ảo hóa tài nguyên hệ thống giống như file system hoặc networking cho mỗi container. Cgroup cung cấp 1 cách để giới hạn lượng tài nguyên như cpu và bộ nhớ mà mỗi container có thể sử dụng).
 
 5. Quản Lý File System:
 
@@ -45,7 +45,9 @@
 
 
 - Vấn đề là do sự phổ biến của Docker nên dẫn đến sự hiểu nhầm rằng cách duy nhất để chạy container là thông qua công cụ docker.
-- Trước khi docker container runtime ra đời thì đã có các runtime khác, nhưng sự ra đời của docker đã giải quyết trọn gói các vấn đề gặp phải với container :
+
+- Nhưng sự ra đời của docker đã giải quyết gần như trọn gói các vấn đề gặp phải với container :
+
     - Có 1 định dạng cho container image.
     - Có 1 phương pháp để xây dựng container image (dockerfile, docker build).
     - Có 1 cách quản lý container image (docker image, docker rm)
