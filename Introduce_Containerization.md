@@ -16,3 +16,5 @@
 | Quản lý tài nguyên | Quản lý tài nguyên trên cấp độ container. | Quản lý tài nguyên trên cấp độ máy ảo. |
 | Quản lý hệ thống | Đơn giản hóa quá trình triển khai và cập nhật ứng dụng, dễ quản lý hơn. | Đòi hỏi quản lý hệ thống và cập nhật giống như trên máy chủ vật lý. |
 | Khả năng cô lập | Sử dụng chung kernel và một số thành phần, chỉ tách biệt về mặt ứng dụng, service. | Cô lập tuyệt đối giữa các ứng dụng và môi trường, sử dụng các phần cứng giả mạo riêng biệt và OS riêng |
+
+![a](https://imgur.com/B0HVijk.png)
