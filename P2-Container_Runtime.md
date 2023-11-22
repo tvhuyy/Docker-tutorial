@@ -55,4 +55,8 @@
     - Có 1 cách để chia sẻ container image (docker pull/push)
     - Có 1 cách để chạy container (docker run).
 
-- Advanced : Docker là runtime high-level và nó chuyển phần việc cho runtime low-level là `runc`.
+- Advanced : Docker là runtime high-level và nó chuyển phần việc cho runtime low-level là `containerd` (quản lý network và file system) và `runc` (khởi tạo và chạy container).
+
+- Docker cũng có các phiên bản `Communities` và `Enterprise`, cung cấp thêm các tính năng như cho phép lưu trữ nhiều repo private trên docker hub, tính năng dò quét lỗ hổng image, thêm các tính năng trên bản giao diện (Không cần thiết).
+
+    ![a](https://imgur.com/3li95R0.png)
