@@ -39,3 +39,9 @@
 - Theo mặc định thì một container được cách ly tương đối tốt với các container khác và với host mà nó đang chạy trên đó. Ta có thể kiểm soát mức độ cô lập về network, storage hoặc các subsystem của container với các container khác hoặc host.
 
 - Một container được xác định bởi image kèm theo các tùy chọn cấu hình khi khởi động. Khi cont bị xóa, mọi thay đổi về trạng thái của container sẽ biến mất.
+
+#### Các phiên bản 
+
+- Docker cũng có các phiên bản `Communities` và `Enterprise`, cung cấp thêm các tính năng như cho phép lưu trữ nhiều repo private trên docker hub, tính năng dò quét lỗ hổng image, thêm các tính năng trên bản giao diện (Không cần thiết).
+
+    ![a](https://imgur.com/3li95R0.png)
