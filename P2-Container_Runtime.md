@@ -46,6 +46,9 @@
 
 - Vấn đề là do sự phổ biến của Docker nên dẫn đến sự hiểu nhầm rằng cách duy nhất để chạy container là thông qua công cụ docker.
 
+
+### Docker engine
+
 - Nhưng sự ra đời của docker đã giải quyết gần như trọn gói các vấn đề gặp phải với container :
 
     - Có 1 định dạng cho container image.
@@ -57,6 +60,4 @@
 
 - Advanced : Docker là runtime high-level và nó chuyển phần việc cho runtime low-level là `containerd` (quản lý network và file system) và `runc` (khởi tạo và chạy container).
 
-- Docker cũng có các phiên bản `Communities` và `Enterprise`, cung cấp thêm các tính năng như cho phép lưu trữ nhiều repo private trên docker hub, tính năng dò quét lỗ hổng image, thêm các tính năng trên bản giao diện (Không cần thiết).
-
-    ![a](https://imgur.com/3li95R0.png)
+    ![a](https://imgur.com/JhMdWvz.png)
