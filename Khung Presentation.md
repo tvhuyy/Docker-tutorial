@@ -32,6 +32,7 @@
     - Overlay Network
     - VIPs
     - Load Balancing
+    - Storage - 3th tool
 
 ### 7. Docker Stack
 ### 8. Security Docker
