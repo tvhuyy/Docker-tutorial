@@ -5,7 +5,7 @@
 ### Sơ lược
 
 - Có 2 loại dữ liệu chính là : Persistent data và non-persistent.
-- `Persistent` là giữ diệu cần phải giữ, như là log, record, audit, event,.. `Non-persistent` là dữ liệu mà ta sẽ không cần phải giữ như guest IP,...
+- `Persistent` là dữ liệu cần phải giữ, như là log, record, audit, event,.. `Non-persistent` là dữ liệu mà ta sẽ không cần phải giữ như guest IP,...
 - Cả 2 đều quan trọng và Docker có giải pháp cho cả 2 loại.
 - Để xử lý dữ liệu `Non-persistent`, mỗi Docker container sẽ có các vùng chứa non-persistent của chính nó. Nó sẽ được tự động tạo ra trên mọi container và được liên kết chặt với vòng đời của container. Vì vậy, mỗi khi container bị xóa thì nó cũng xóa luôn vùng chứa cùng với dữ liệu được lưu trữ trên nó.
 - Để xử lý dữ liệu `Persistent`, Container cần chứa dữ liệu trong một `volume`. Các volume là các đối tượng riêng biệt có life-cycle tách riêng với các container. Vì thế nó có thể được tạo và quản lý một cách độc lập, nó sẽ không bị xóa khi container bị xóa.
