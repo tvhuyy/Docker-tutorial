@@ -122,7 +122,7 @@
     caladreas/apache2-openidc-docker   Naieve docker container configuration for Ap…   1                    [OK]
     ```
 
-    ![a](https://imgur.com/CYkeWpa)
+    ![a](https://imgur.com/CYkeWpa.png)
 
 - Trong ví dụ này ta sẽ sử dụng image `ubuntu/apache2`.
 - Pull Image về :
