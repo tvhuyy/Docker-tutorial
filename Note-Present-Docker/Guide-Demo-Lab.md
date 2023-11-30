@@ -207,5 +207,67 @@
     ubuntu/apache2   latest    8da089b10141   38 hours ago    193MB
     ```
 
+- Dừng container đang chạy bằng lệnh `docker stop <container-name>` và xóa bằng lệnh `docker container rm <container-name>`
+
 #### 3.3 Build Image từ dockerfile
+
+- Với cách này ta cần biết cách viết dockerfile và hiểu cấu trúc của images gồm nhiều layer đã được viết trong phần lý thuyết.
+- Về cơ bản, dockerfile là 1 bản hướng dẫn cách xây dựng các layer của images với mỗi `Instruction` là một layer. Các `Instruction` chính thường có trong dockerfile (Chi tiết về các Instruction sẽ được cập nhật sau, phần này chỉ nói khái quát) :
+    - `FROM` : dockerfile bắt buộc phải bắt đầu bằng instruction `FROM`. Nó khởi tạo 1 build stage mới và thiết lập base image cho các instruction sau nó.
+    - `RUN` : Thực thi lệnh được khai báo trong layer mới.
+    - `CMD` : Vẫn là thực thi lệnh nhưng là sau khi run container.
+    - `LABEL` : thêm các metadate cho image, dưới dạng các cặp, key-value.
+    - `MAINTAINER` : dùng để khai báo tác giả cho Image.
+    - `EXPOSE` : khai báo cổng mạng được chỉ định trong lúc container chạy.
+    - `ENV` : khai báo các biến môi trường dưới dạng key-value.
+    - `COPY` : copy các file hoặc thư mục từ host vào image.
+    - `ADD` : tương tự như COPY nhưng có thêm chức năng mở rộng như giải nén hay copy từ URL.
+    - `ENTRYPOINT` : cho phép config container như một executable.
+
+- Trong repo đã được clone về ở phần 2, ta truy cập vào thư mục `/apache2`, trong đây đã có sẵn một `dockerfile`. Có thể tham khảo và sử dụng luôn repo này build.
+
+    ```
+    FROM ubuntu:latest
+
+    LABEL maintainer="github.com/tvhuyy"
+
+    RUN apt-get update && apt-get install -y apache2
+
+    COPY www/apache-web-81/index.html /var/www/apache-web-81/
+    COPY www/apache-web-82/index.html /var/www/apache-web-82/
+    COPY default.conf /etc/apache2/sites-available/images.conf
+
+    RUN ln -s /etc/apache2/sites-available/images.conf /etc/apache2/sites-enabled/ && \
+        echo listen 81 >> /etc/apache2/ports.conf && \
+        echo listen 82 >> /etc/apache2/ports.conf 
+
+    EXPOSE 80 81 82 
+
+    CMD apachectl -D FOREGROUND
+    ```
+
+- Các instruction COPY sẽ copy các file html và và file cấu hình vào bên trong image Apache2. Mọi người có thể tùy chỉnh file html ở bên ngoài để web hiển thị thông tin mình muốn.
+- Tiến hành build image : `docker build -t my-apache-web:v1 .`
+- *Lưu ý* : vì đang build từ cùng thư mục chứa dockerfile nên phần path trong câu lệnh là `.` , nếu ở khác thư mục thì cần chỏ đúng về thư mục chứa dockerfile.
+
+- Kiểm tra image đã được build :
+    ```
+    docker-manager@Ubuntu-Desk:~/Config-lab-docker/apache2$ docker images
+    REPOSITORY       TAG       IMAGE ID       CREATED              SIZE
+    my-apache-web    v1        13a900794d72   About a minute ago   240MB
+    apache-test      latest    e87cf873a7e2   4 hours ago          294MB
+    ubuntu/apache2   latest    8da089b10141   42 hours ago         193MB
+    ```
+
+- Run thử container với image này (image này chạy 2 website ở port 81 và 82 bên trong container, cần --publish đúng port):
+    ```
+    docker run -itd --name apache-web --publish 8081:81 --publish 8082:82 my-apache-web:v1
+    ```
+
+- Kiểm tra bằng web browser :
+
+    ![a](https://imgur.com/kdlJtsF.png)
+
+    ![a](https://imgur.com/DlzunPr.png)
+
 
