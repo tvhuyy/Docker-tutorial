@@ -271,3 +271,113 @@
     ![a](https://imgur.com/DlzunPr.png)
 
 
+### 4. Push Images lên Registry
+
+- Khi ta cần lưu trữ các Image này để có thể mang đi deploy trên các hệ thống khác, ta sẽ cần đến các kho chứa image (registry).
+- Phần này sẽ hướng dẫn push lên Docker Hub hoặc đóng gói Images để lưu trữ Private (phù hợp trường hợp triển khai không có mạng).
+
+#### 4.1 Push lên Docker Hub
+
+- Để push lên Docker Hub thì ta cần có tài khoản, đăng ký hoàn toàn miễn phí.
+- Sau khi đăng ký xong tài khoản thì ta vào phần `Repositories` và chọn `Create repository`.
+
+    ![a](https://imgur.com/AoWMjgF.png)
+
+- Format của repo là `<name-account>/<name-repository>`. Ví dụ :
+
+    ![a](https://imgur.com/VSgbq40.png)
+
+- Phần bên phải có kèm theo 1 vài hướng dẫn cách tag image name và cách push.
+- Ta sẽ cần tag image đang có trên local về thành tag name giống với repo trên Hub để có thể chỉ định image đó được lưu ở đâu.
+    ```
+    docker-manager@Ubuntu-Desk:~$ docker images
+    REPOSITORY       TAG       IMAGE ID       CREATED          SIZE
+    my-apache-web    v1        13a900794d72   24 minutes ago   240MB
+    apache-test      latest    e87cf873a7e2   4 hours ago      294MB
+    ubuntu/apache2   latest    8da089b10141   42 hours ago     193MB
+    docker-manager@Ubuntu-Desk:~$ docker tag my-apache-web:v1 hh4huy/apache2:latest
+    docker-manager@Ubuntu-Desk:~$ docker images
+    REPOSITORY       TAG       IMAGE ID       CREATED          SIZE
+    hh4huy/apache2   latest    13a900794d72   26 minutes ago   240MB
+    my-apache-web    v1        13a900794d72   26 minutes ago   240MB
+    apache-test      latest    e87cf873a7e2   4 hours ago      294MB
+    ubuntu/apache2   latest    8da089b10141   42 hours ago     193MB
+    ```
+
+- Trên máy lưu image local, ta cần login user docker hub bằng câu lệnh `docker login`, nhập user và password :
+    ```bash
+    docker-manager@Ubuntu-Desk:~$ docker login
+    Log in with your Docker ID or email address to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com/ to create one.
+    You can log in with your password or a Personal Access Token (PAT). Using a limited-scope PAT grants better security and is required for organizations using SSO. Learn more at https://docs.docker.com/go/access-tokens/
+
+    Username: hh4huy
+    Password:
+    WARNING! Your password will be stored unencrypted in /home/docker-manager/.docker/config.json.
+    Configure a credential helper to remove this warning. See
+    https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+    Login Succeeded
+
+    ```
+
+- Sau khi đã login, ta push image lên :
+    ```bash
+    docker-manager@Ubuntu-Desk:~$ docker push hh4huy/apache2:latest
+    The push refers to repository [docker.io/hh4huy/apache2]
+    147919a2b330: Pushed
+    772bcc6d75c4: Pushed
+    509fa932a129: Pushed
+    2aba5c58ee12: Pushed
+    76ee02b07b4c: Pushed
+    256d88da4185: Mounted from library/ubuntu
+    latest: digest: sha256:ce8551085452d20c10c6e4f6494aa454b04cf048d2b857e1bb33a8dcc8524439 size: 1569
+    ```
+
+- Bây giờ ta có thể pull nó về từ bất kì máy nào có kết nối internet.
+    ```bash
+    docker-manager@Ubuntu-Desk:~$ docker search hh4huy/apache2
+    NAME             DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+    hh4huy/apache2   Repository include images of Apache2 on Ubun…   0
+    ```
+
+#### 4.2 Đóng gói Images lưu trữ Private
+
+- Ta có thể đóng gói 1 images đang có trên máy bằng câu lệnh `docker save` :
+    ```
+    docker-manager@Ubuntu-Desk:~$ docker save -o hh4huy-apache2.tar hh4huy/apache2
+    docker-manager@Ubuntu-Desk:~$ ls
+    Config-lab-docker  hh4huy-apache2.tar
+    ```
+
+- Sau đó di chuyển đến 1 kho chứa private :
+    ```
+    tvhuyy@DESKTOP-DCN1VPA:~$ scp docker-manager@192.168.1.22:/home/docker-manager/hh4huy-apache2.tar /home/tvhuyy
+    ```
+
+- Rồi chuyển nó sang một server mới từ kho chứa private :
+    ```
+    tvhuyy@DESKTOP-DCN1VPA:~$ scp hh4huy-apache2.tar tvhuyy@192.168.1.21:/home/tvhuyy/
+    ```
+
+- Kiểm tra file trên server mới :
+    ```
+    tvhuyy@ubuntu-svr2:~$ ls /home/tvhuyy/ | grep hh4huy-apache2.tar
+    hh4huy-apache2.tar
+    ```
+
+- Giải gói tar thành Image để sử dụng bằng câu lệnh `docker load -i <name-file>` :
+    ```
+    tvhuyy@ubuntu-svr2:~$ docker load -i hh4huy-apache2.tar
+    76ee02b07b4c: Loading layer [==================================================>]  165.1MB/165.1MB
+    2aba5c58ee12: Loading layer [==================================================>]  3.584kB/3.584kB
+    509fa932a129: Loading layer [==================================================>]  3.584kB/3.584kB
+    772bcc6d75c4: Loading layer [==================================================>]  3.584kB/3.584kB
+    147919a2b330: Loading layer [==================================================>]  4.096kB/4.096kB
+    Loaded image: hh4huy/apache2:latest
+    ```
+
+- Kiểm tra Image :
+    ```
+    tvhuyy@ubuntu-svr2:~$ docker images | grep hh4huy/apache2
+    hh4huy/apache2   latest    13a900794d72   47 minutes ago   240MB
+    ```
