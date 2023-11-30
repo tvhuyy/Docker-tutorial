@@ -1,0 +1,15 @@
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get install -y apache2
+
+COPY www/apache-web-81/index.html /var/www/apache-web-81/
+COPY www/apache-web-82/index.html /var/www/apache-web-82/
+COPY default.conf /etc/apache2/sites-available/images.conf
+
+RUN ln -s /etc/apache2/sites-available/images.conf /etc/apache2/sites-enabled/ && \
+    echo listen 81 >> /etc/apache2/ports.conf && \
+    echo listen 82 >> /etc/apache2/ports.conf 
+
+EXPOSE 80 81 82 
+
+CMD apachectl -D FOREGROUND

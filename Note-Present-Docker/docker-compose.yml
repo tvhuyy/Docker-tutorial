@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  apache1:
+    container_name: apache1
+    image: hh4huy/apa
+    networks:
+      - apache-net
+    stdin_open: true
+    tty: true
+
+  apache2:
+    container_name: apache2
+    image: hh4huy/apa:v1
+    networks:
+      - apache-net
+    stdin_open: true
+    tty: true
+
+  apache3:
+    container_name: apache3
+    image: hh4huy/apa:v2
+    networks:
+      - apache-net
+    stdin_open: true
+    tty: true
+
+  nginx1:
+    container_name: nginx1
+    image: hh4huy/nginx:v1
+    networks:
+      - apache-net
+    ports:
+      - "80:80"
+    stdin_open: true
+    tty: true
+networks:
+  apache-net:
+    driver: bridge
