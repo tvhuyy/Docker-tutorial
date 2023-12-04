@@ -381,3 +381,13 @@
     tvhuyy@ubuntu-svr2:~$ docker images | grep hh4huy/apache2
     hh4huy/apache2   latest    13a900794d72   47 minutes ago   240MB
     ```
+
+
+### 5. Tự động triển khai container với Docker-Compose
+
+- Phần này sẽ sử dụng luôn tài nguyên là các file ta git clone về ở phần 2. Cần setup thêm 1 vài phần.
+- Mô hình ta sẽ có 3 container chạy service apache web và 1 container chạy service Nginx làm reverse proxy.
+
+    ![a](https://imgur.com/KvBGA0D.png)
+
+- Web browser trên máy Client (Windows 10) sẽ truy cập đến `localtest.web/host1` và `localtest.web/host2` với port 80 của Host Ubuntu được ánh xạ đến port 80 của container Nginx. Nginx sẽ load balancing các web server Apache ở các container bên trong với port 81,81. Lưu ý : Tên web này có thể set lại theo ý muốn trong config của Nginx, cần thêm đúng tên và địa chỉ IP vào trong file host của máy Client.
