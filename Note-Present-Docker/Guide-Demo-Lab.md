@@ -390,4 +390,150 @@
 
     ![a](https://imgur.com/KvBGA0D.png)
 
-- Web browser trên máy Client (Windows 10) sẽ truy cập đến `localtest.web/host1` và `localtest.web/host2` với port 80 của Host Ubuntu được ánh xạ đến port 80 của container Nginx. Nginx sẽ load balancing các web server Apache ở các container bên trong với port 81,81. Lưu ý : Tên web này có thể set lại theo ý muốn trong config của Nginx, cần thêm đúng tên và địa chỉ IP vào trong file host của máy Client.
+- Web browser trên máy Client (Windows 10) sẽ truy cập đến `localtest.web/host1` và `localtest.web/host2` với port 80 của Host Ubuntu được ánh xạ đến port 80 của container Nginx. Nginx sẽ load balancing các web server Apache ở các container bên trong với port 81,82. Lưu ý : Tên web này có thể set lại theo ý muốn trong config của Nginx, cần thêm đúng tên và địa chỉ IP vào trong file host của máy Client.
+- Thực tế thì khi Load Balacing sẽ là 3 web giống nhau nhưng trong demo này để thấy các container thực sự được chia tải thì ta sẽ sử dụng 3 container apache dựng lên từ 3 image (chính xác hơn là 1 image với 3 name tag).
+
+#### 5.1 Chuẩn bị images để triển khai
+
+- Ở phần trên, ta đã build 1 image Apache từ docker file và chạy thử. Phần này ta sẽ làm tương tự nhưng sẽ thay đổi nội dung file `html` trước khi build, và gắn tag khác cho image đó.
+- Trên máy local, ta đã có sẵn 1 image `hh4huy/apache2` với tag là `latest`, bây giờ ta sẽ tiến hành tạo 2 version khác của image này :
+    ```
+    docker-manager@Ubuntu-Desk:~$ docker images
+    REPOSITORY       TAG       IMAGE ID       CREATED       SIZE
+    hh4huy/nginx     latest    f4514091a763   10 days ago   180MB
+    hh4huy/apache2   latest    13a900794d72   11 days ago   240MB
+    ```
+
+- Truy cập vào thư mục Apache của repo đã được clone về ở phần đầu `cd Config-lab-docker/apache2/`.
+- Tiến hành sửa file `nano www/apache-web-81/index.html` (có thể sửa thành bất kì nội dung gì, miễn là khác với image đang có).
+- Sau đó build lại image với tag khác 
+    ```
+    ~/Config-lab-docker/apache2$ docker build -t hh4huy/apache2:v1 .
+    ```
+
+- Tương tự, build image thứ 3 :
+    ```
+    ~/Config-lab-docker/apache2$ docker build -t hh4huy/apache2:v2 .
+    ```
+
+- Tiếp theo, chuyển sang thư mục `nginx` trong cùng repo. Chỉnh sửa file config `web.conf`, phần `server_name` có thể chỉnh thành bất kì domain nào ta muốn <vì nó local, cần thêm domain vào file host trên máy client>
+    ```
+    upstream vhost1 {
+            server apache1:81;
+            server apache2:81;
+            server apache3:81;
+
+            }
+
+    upstream vhost2 {
+            server apache1:82;
+            server apache2:82;
+            server apache3:82;
+
+            }
+
+    server {
+            listen 80;
+
+            server_name localtest.web;
+
+            location /host1 {
+                    rewrite ^/host1(.*) /$1 break;
+                    proxy_pass http://vhost1;
+            }
+
+            location /host2 {
+                    rewrite ^/host2(.*) /$1 break;
+                    proxy_pass http://vhost2;
+            }
+    }
+    ```
+
+- Tiến hành build image `nginx` :
+    ```
+    ~/Config-lab-docker/nginx$ docker build -t hh4huy/nginx:latest .
+    ```
+
+- Bây giờ ta đã có 4 image, chuẩn bị cho việc chạy compose :
+    ```
+    docker-manager@Ubuntu-Desk:~/Config-lab-docker$ docker images
+    REPOSITORY       TAG       IMAGE ID       CREATED          SIZE
+    hh4huy/nginx     latest    c246e3607b48   7 minutes ago    180MB
+    hh4huy/apache2   v2        a25a787636cc   15 minutes ago   232MB
+    hh4huy/apache2   v1        0dfc10c46f21   11 hours ago     232MB
+    hh4huy/apache2   latest    13a900794d72   11 days ago      240MB
+    ```
+
+#### 5.2 Viết file Docker-compose.yml và triển khai
+
+- Vì chỉ lab compose đơn giản nên ta sẽ chuẩn bị image từ trước, tuy nhiên docker-compose.yml có hỗ trợ chỉ dẫn để build image rồi run container luôn trong cùng 1 file yml.
+- Trong repo clone về, ta đã có sẵn 1 file `docker-compose.yml` cơ bản :
+    ```
+    version: '3'
+
+    services:
+    apache1:
+        container_name: apache1
+        image: hh4huy/apache2:latest
+        networks:
+        - apache-net
+        restart: on-failure
+
+    apache2:
+        container_name: apache2
+        image: hh4huy/apache2:v1
+        networks:
+        - apache-net
+        restart: on-failure
+
+    apache3:
+        container_name: apache3
+        image: hh4huy/apache2:v2
+        networks:
+        - apache-net
+        restart: on-failure
+
+    nginx1:
+        container_name: nginx1
+        image: hh4huy/nginx:latest
+        networks:
+        - apache-net
+        ports:
+        - "80:80"
+        restart: on-failure
+
+    networks:
+    apache-net:
+        driver: bridge
+    ```
+
+- Chú ý chỉnh sửa các image theo đúng tên và tag name đã đặt.
+- Run docker compose :
+    ```
+    docker-manager@Ubuntu-Desk:~/Config-lab-docker$ docker compose up -d
+    [+] Running 5/5
+    ✔ Network config-lab-docker_apache-net  Created                                                             0.1s
+    ✔ Container apache2                     Started                                                             0.3s
+    ✔ Container apache3                     Started                                                             0.3s
+    ✔ Container nginx1                      Started                                                             0.2s
+    ✔ Container apache1                     Started                                                             0.3s
+
+    ```
+
+- Kiểm tra trạng thái container :
+    ```
+    docker-manager@Ubuntu-Desk:~/Config-lab-docker$ docker container ls
+    CONTAINER ID   IMAGE                   COMMAND                  CREATED         STATUS         PORTS                                          NAMES
+    dc408132749b   hh4huy/apache2:latest   "/bin/sh -c 'apachec…"   5 minutes ago   Up 5 minutes   80-82/tcp                                      apache1
+    94bb05819d45   hh4huy/nginx:latest     "nginx -g 'daemon of…"   5 minutes ago   Up 5 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp, 81-82/tcp   nginx1
+    4e969412b865   hh4huy/apache2:v1       "/bin/sh -c 'apachec…"   5 minutes ago   Up 5 minutes   80-82/tcp                                      apache2
+    f140846dc2f0   hh4huy/apache2:v2       "/bin/sh -c 'apachec…"   5 minutes ago   Up 5 minutes   80-82/tcp                                      apache3
+    ```
+
+- Kiểm tra trên máy client theo mô hình :
+    
+    ![a](https://imgur.com/pmM4Nxh.png)
+
+    ![a](https://imgur.com/zqmODzB.png)
+
+    ![a](https://imgur.com/aste3fR.png)
