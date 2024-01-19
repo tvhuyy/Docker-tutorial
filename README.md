@@ -17,3 +17,7 @@ Note for research Docker - Containerization
 9. [Guide Lab](./Note-Present-Docker/Guide-Demo-Lab.md)
 
 #### [Note Book : Docker Deep Dive](./Note_Docker_Deep_Dive/)
+
+5. [The Docker Engine](./Note_Docker_Deep_Dive/Chapter_5_The_Docker_Engine.md)
+6. [Images](./Note_Docker_Deep_Dive/Chapter_6_Images.md)
+13. [Volume and Persistent data](./Note_Docker_Deep_Dive/Chapter_13_Volume_and_persistent_data.md)
